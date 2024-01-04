@@ -18,10 +18,10 @@ class DatabaseManager:
         self, user_id: int, server_id: int, moderator_id: int, reason: str
     ) -> int:
         """
-        This function will add a warn to the database.
+        この関数は、データベースに警告されたユーザを追加します。
 
-        :param user_id: The ID of the user that should be warned.
-        :param reason: The reason why the user should be warned.
+        :param user_id: 警告すべきユーザのID
+        :param reason: ユーザが警告を受ける理由
         """
         rows = await self.connection.execute(
             "SELECT id FROM warns WHERE user_id=? AND server_id=? ORDER BY id DESC LIMIT 1",
@@ -48,11 +48,11 @@ class DatabaseManager:
 
     async def remove_warn(self, warn_id: int, user_id: int, server_id: int) -> int:
         """
-        This function will remove a warn from the database.
+        この関数は、データベースから警告されたユーザを削除します。
 
-        :param warn_id: The ID of the warn.
-        :param user_id: The ID of the user that was warned.
-        :param server_id: The ID of the server where the user has been warned
+        :param warn_id: 警告ID
+        :param user_id: 警告されたユーザID
+        :param server_id: ユーザが警告を受けたサーバのID
         """
         await self.connection.execute(
             "DELETE FROM warns WHERE id=? AND user_id=? AND server_id=?",
@@ -76,11 +76,11 @@ class DatabaseManager:
 
     async def get_warnings(self, user_id: int, server_id: int) -> list:
         """
-        This function will get all the warnings of a user.
+        この関数は、特定のユーザの警告をすべて取得します。
 
-        :param user_id: The ID of the user that should be checked.
-        :param server_id: The ID of the server that should be checked.
-        :return: A list of all the warnings of the user.
+        :param user_id: チェック対象のユーザID
+        :param server_id: チェック対象のサーバID
+        :return: 対象ユーザのすべての警告リスト
         """
         rows = await self.connection.execute(
             "SELECT user_id, server_id, moderator_id, reason, strftime('%s', created_at), id FROM warns WHERE user_id=? AND server_id=?",

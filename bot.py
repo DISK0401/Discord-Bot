@@ -8,6 +8,7 @@ Version: 6.1.0
 
 import json
 import logging
+import logging.handlers
 import os
 import platform
 import random
@@ -111,7 +112,12 @@ logger.setLevel(logging.INFO)
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(LoggingFormatter())
 # File handler
-file_handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
+os.makedirs('./log/', exist_ok=True)
+# file_handler = logging.FileHandler(filename="./log/discord.log", encoding="utf-8", mode="w")
+MAX_LOG_FILE_SIZE = os.getenv("MAX_LOG_SIZE_MB",10)*1024*1000
+MAX_LOG_BACKUP_COUNT = os.getenv("MAX_LOG_BACKUP_COUNT",10)
+file_handler = logging.handlers.RotatingFileHandler('./log/discord.log',mode="a+",encoding="utf-8",
+                                                    maxBytes=MAX_LOG_FILE_SIZE,backupCount=MAX_LOG_BACKUP_COUNT)
 file_handler_formatter = logging.Formatter(
     "[{asctime}] [{levelname:<8}] {name}: {message}", "%Y-%m-%d %H:%M:%S", style="{"
 )
