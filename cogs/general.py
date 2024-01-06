@@ -222,14 +222,23 @@ class General(commands.Cog, name="general"):
                 "https://api.coindesk.com/v1/bpi/currentprice/BTC.json"
             ) as request:
                 if request.status == 200:
-                    data = await request.json(
-                        content_type="application/javascript"
-                    )
-                    embed = discord.Embed(
-                        title="Bitcoin価格",
-                        description=f"現在価格は {data['bpi']['USD']['rate']} USDです:",
-                        color=0xBEBEFE,
-                    )
+                    bitcoin_data = await request.json()
+                    bitcoin_usd:float = float(str(bitcoin_data['bpi']['USD']['rate']).replace(",",""))
+                    self.bot.logger.debug(f"bitcoin_usd:{bitcoin_usd:,}")
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(
+                            "https://api.excelapi.org/currency/rate?pair=usd-jpy"
+                        ) as request:
+                            embed = discord.Embed(
+                                title="**現在のBitcoin価格：**", color=0xBEBEFE
+                            )
+                            embed.add_field(name="USD", value=f"{bitcoin_usd:,.2f} USD")
+                            if request.status == 200:
+                                exchange_data:float = float(await request.text())
+                                self.bot.logger.debug("為替(usd-円)",exchange_data)
+                                result = exchange_data * bitcoin_usd
+                                embed.add_field(name="日本円", value=f"{result:,.0f} 円")
+                                embed.set_footer(text=f"為替: 1ドル {exchange_data}円")
                 else:
                     embed = discord.Embed(
                         title="エラー",
