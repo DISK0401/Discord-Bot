@@ -3,6 +3,7 @@ from discord.member import Member,VoiceState
 from discord.ext import commands
 from discord.ext.commands import Context
 import util.voice_state_update as voice_state_update
+import util.fortune as fortune
 
 class Notification(commands.Cog, name="notification"):
     def __init__(self, bot) -> None:
@@ -17,7 +18,7 @@ class Notification(commands.Cog, name="notification"):
         match action:
             case voice_state_update.Action.CHANNEL_JOIN:
                 if voice_state_update.isIntervalTimePassed(member, 10):
-                    msg = f'「{member.name}」さんが <#{after.channel.id}> に参加しました。'
+                    msg = f'「{member.name}」さんが <#{after.channel.id}> に参加しました。(今回のおみくじ：**{fortune.trans_jp(fortune.Omikuji.draw())}**)'
                     channel = discord.utils.get(member.guild.channels, name=self.bot.config["notice_voice_channel"])
                     await channel.send(msg)
             case voice_state_update.Action.CHANNEL_EXIT:
