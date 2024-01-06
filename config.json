@@ -1,5 +1,6 @@
 {
   "prefix": "YOUR_BOT_PREFIX_HERE",
   "invite_link": "YOUR_BOT_INVITE_LINK_HERE",
+  "support_link": "YOUR_BOT_SUPPORT_LINK_HERE",
   "notice_voice_channel": "入退室通知"
 }
