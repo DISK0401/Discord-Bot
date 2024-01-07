@@ -225,14 +225,16 @@ class General(commands.Cog, name="general"):
                     bitcoin_data = await request.json()
                     bitcoin_usd:float = float(str(bitcoin_data['bpi']['USD']['rate']).replace(",",""))
                     self.bot.logger.debug(f"bitcoin_usd:{bitcoin_usd:,}")
+
+                    embed = discord.Embed(
+                        title="**現在のBitcoin価格：**", color=0xBEBEFE
+                    )
+                    embed.add_field(name="USD", value=f"{bitcoin_usd:,.2f} USD")
+
                     async with aiohttp.ClientSession() as session:
                         async with session.get(
                             "https://api.excelapi.org/currency/rate?pair=usd-jpy"
                         ) as request:
-                            embed = discord.Embed(
-                                title="**現在のBitcoin価格：**", color=0xBEBEFE
-                            )
-                            embed.add_field(name="USD", value=f"{bitcoin_usd:,.2f} USD")
                             if request.status == 200:
                                 exchange_data:float = float(await request.text())
                                 self.bot.logger.debug("為替(usd-円)",exchange_data)
@@ -245,7 +247,7 @@ class General(commands.Cog, name="general"):
                         description="APIに何か問題があるようです。",
                         color=0xE02B2B,
                     )
-                await context.send(embed=embed)
+        await context.send(embed=embed)
 
 
 async def setup(bot) -> None:
