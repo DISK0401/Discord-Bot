@@ -18,22 +18,22 @@ class Owner(commands.Cog, name="owner"):
 
     @commands.command(
         name="sync",
-        description="Synchonizes the slash commands.",
+        description="スラッシュコマンドを同期します",
     )
-    @app_commands.describe(scope="The scope of the sync. Can be `global` or `guild`")
+    @app_commands.describe(scope="同期対象のスコープを入力してください。(global or guild)")
     @commands.is_owner()
     async def sync(self, context: Context, scope: str) -> None:
         """
-        Synchonizes the slash commands.
+        スラッシュコマンドを同期する
 
-        :param context: The command context.
-        :param scope: The scope of the sync. Can be `global` or `guild`.
+        :param context: コマンドコンテキスト
+        :param scope: 同期対象のスコープ(global or guild)
         """
 
         if scope == "global":
             await context.bot.tree.sync()
             embed = discord.Embed(
-                description="Slash commands have been globally synchronized.",
+                description="スラッシュコマンドがグローバルに同期されました",
                 color=0xBEBEFE,
             )
             await context.send(embed=embed)
@@ -42,37 +42,37 @@ class Owner(commands.Cog, name="owner"):
             context.bot.tree.copy_global_to(guild=context.guild)
             await context.bot.tree.sync(guild=context.guild)
             embed = discord.Embed(
-                description="Slash commands have been synchronized in this guild.",
+                description="スラッシュコマンドがギルドに同期されました",
                 color=0xBEBEFE,
             )
             await context.send(embed=embed)
             return
         embed = discord.Embed(
-            description="The scope must be `global` or `guild`.", color=0xE02B2B
+            description="指定するスコープは「global」又は「guild」である必要があります。", color=0xE02B2B
         )
         await context.send(embed=embed)
 
     @commands.command(
         name="unsync",
-        description="Unsynchonizes the slash commands.",
+        description="スラッシュコマンドをクリアします。",
     )
     @app_commands.describe(
-        scope="The scope of the sync. Can be `global`, `current_guild` or `guild`"
+        scope="クリアする対象のスコープを入力してください。(global or guild)"
     )
     @commands.is_owner()
     async def unsync(self, context: Context, scope: str) -> None:
         """
-        Unsynchonizes the slash commands.
+        スラッシュコマンドをクリアする。
 
-        :param context: The command context.
-        :param scope: The scope of the sync. Can be `global`, `current_guild` or `guild`.
+        :param context: コマンドコンテキスト
+        :param scope: クリア対象のスコープ(global or guild)
         """
 
         if scope == "global":
             context.bot.tree.clear_commands(guild=None)
             await context.bot.tree.sync()
             embed = discord.Embed(
-                description="Slash commands have been globally unsynchronized.",
+                description="スラッシュコマンドがグローバルからクリアされました。",
                 color=0xBEBEFE,
             )
             await context.send(embed=embed)
@@ -81,80 +81,80 @@ class Owner(commands.Cog, name="owner"):
             context.bot.tree.clear_commands(guild=context.guild)
             await context.bot.tree.sync(guild=context.guild)
             embed = discord.Embed(
-                description="Slash commands have been unsynchronized in this guild.",
+                description="スラッシュコマンドがこのギルドからクリアされました",
                 color=0xBEBEFE,
             )
             await context.send(embed=embed)
             return
         embed = discord.Embed(
-            description="The scope must be `global` or `guild`.", color=0xE02B2B
+            description="scopeは「global」又は「guild」を指定してください", color=0xE02B2B
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
+    @commands.command(
         name="load",
-        description="Load a cog",
+        description="特定のcogを読み込みます",
     )
-    @app_commands.describe(cog="The name of the cog to load")
+    @app_commands.describe(cog="読み込むcogの名前")
     @commands.is_owner()
     async def load(self, context: Context, cog: str) -> None:
         """
-        The bot will load the given cog.
+        botに指定したcogを読み込む
 
-        :param context: The hybrid command context.
-        :param cog: The name of the cog to load.
+        :param context: ハイブリッドコマンドコンテキスト
+        :param cog: 読み込むcogの名前
         """
         try:
             await self.bot.load_extension(f"cogs.{cog}")
         except Exception:
             embed = discord.Embed(
-                description=f"Could not load the `{cog}` cog.", color=0xE02B2B
+                description=f"`{cog}` cogを読み込むことができませんでした。", color=0xE02B2B
             )
             await context.send(embed=embed)
             return
         embed = discord.Embed(
-            description=f"Successfully loaded the `{cog}` cog.", color=0xBEBEFE
+            description=f"`{cog}` cogの読み込みに成功しました。", color=0xBEBEFE
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
+    @commands.command(
         name="unload",
-        description="Unloads a cog.",
+        description="特定のcogをアンロードします",
     )
-    @app_commands.describe(cog="The name of the cog to unload")
+    @app_commands.describe(cog="アンロードするcogの名前")
     @commands.is_owner()
     async def unload(self, context: Context, cog: str) -> None:
         """
-        The bot will unload the given cog.
+        botから指定したcogをアンロードする
 
-        :param context: The hybrid command context.
-        :param cog: The name of the cog to unload.
+        :param context: ハイブリッドコマンドコンテキスト
+        :param cog: アンロードするcogの名前
         """
         try:
             await self.bot.unload_extension(f"cogs.{cog}")
         except Exception:
             embed = discord.Embed(
-                description=f"Could not unload the `{cog}` cog.", color=0xE02B2B
+                description=f"`{cog}` cogのアンロードに失敗しました。", color=0xE02B2B
             )
             await context.send(embed=embed)
             return
         embed = discord.Embed(
-            description=f"Successfully unloaded the `{cog}` cog.", color=0xBEBEFE
+            description=f"`{cog}` cogのアンロードに成功しました。", color=0xBEBEFE
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
+    @commands.command(
         name="reload",
-        description="Reloads a cog.",
+        description="特定のcogをリロードする",
     )
-    @app_commands.describe(cog="The name of the cog to reload")
+    @app_commands.describe(cog="リロードするcogの名前")
     @commands.is_owner()
     async def reload(self, context: Context, cog: str) -> None:
         """
-        The bot will reload the given cog.
+        botから指定したcogをリロードする
 
-        :param context: The hybrid command context.
-        :param cog: The name of the cog to reload.
+        :param context: ハイブリッドコマンドコンテキスト
+        :param cog: リロードする対象のcogファイル名
         """
         try:
             await self.bot.reload_extension(f"cogs.{cog}")
@@ -171,14 +171,14 @@ class Owner(commands.Cog, name="owner"):
 
     @commands.hybrid_command(
         name="shutdown",
-        description="Make the bot shutdown.",
+        description="Botを停止させる",
     )
     @commands.is_owner()
     async def shutdown(self, context: Context) -> None:
         """
-        Shuts down the bot.
+        Botを停止させる
 
-        :param context: The hybrid command context.
+        :param context: ハイブリッドコマンドコンテキスト
         """
         embed = discord.Embed(description="Shutting down. Bye! :wave:", color=0xBEBEFE)
         await context.send(embed=embed)
@@ -186,49 +186,49 @@ class Owner(commands.Cog, name="owner"):
 
     @commands.hybrid_command(
         name="say",
-        description="The bot will say anything you want.",
+        description="Botに指定した文言を発言させる",
     )
-    @app_commands.describe(message="The message that should be repeated by the bot")
+    @app_commands.describe(message="Botに発言させるメッセージ")
     @commands.is_owner()
     async def say(self, context: Context, *, message: str) -> None:
         """
-        The bot will say anything you want.
+        Botはあなたの望むことを何でも言う。
 
-        :param context: The hybrid command context.
-        :param message: The message that should be repeated by the bot.
+        :param context: ハイブリッドコマンドコンテキスト
+        :param message: Botに発言させるメッセージ
         """
         await context.send(message)
 
     @commands.hybrid_command(
-        name="embed",
-        description="The bot will say anything you want, but within embeds.",
+        name="say_embed",
+        description="Botに指定した文言を埋め込み形式で発現させる",
     )
-    @app_commands.describe(message="The message that should be repeated by the bot")
+    @app_commands.describe(message="Botに発現させるメッセージ")
     @commands.is_owner()
     async def embed(self, context: Context, *, message: str) -> None:
         """
-        The bot will say anything you want, but using embeds.
+        Botに指定した文言を埋め込み形式で発現させる
 
-        :param context: The hybrid command context.
-        :param message: The message that should be repeated by the bot.
+        :param context: ハイブリッドコマンドコンテキスト
+        :param message: Botに発現させるメッセージ
         """
         embed = discord.Embed(description=message, color=0xBEBEFE)
         await context.send(embed=embed)
 
     @commands.hybrid_group(
         name="blacklist",
-        description="Get the list of all blacklisted users.",
+        description="ブラックリストに関連するコマンド",
     )
     @commands.is_owner()
     async def blacklist(self, context: Context) -> None:
         """
-        Lets you add or remove a user from not being able to use the bot.
+        ブラックリストに関連するコマンド
 
-        :param context: The hybrid command context.
+        :param context: ハイブリッドコマンドコンテキスト
         """
         if context.invoked_subcommand is None:
             embed = discord.Embed(
-                description="You need to specify a subcommand.\n\n**Subcommands:**\n`add` - Add a user to the blacklist.\n`remove` - Remove a user from the blacklist.",
+                description="サブコマンドを指定する必要があります。\n\n**サブコマンド:**\n`add` - ユーザーをブラックリストに追加する.\n`remove` - ブラックリストからユーザーを削除する。",
                 color=0xE02B2B,
             )
             await context.send(embed=embed)
@@ -236,93 +236,93 @@ class Owner(commands.Cog, name="owner"):
     @blacklist.command(
         base="blacklist",
         name="show",
-        description="Shows the list of all blacklisted users.",
+        description="ブラックリストに登録されているユーザーのリストを表示します。",
     )
     @commands.is_owner()
     async def blacklist_show(self, context: Context) -> None:
         """
-        Shows the list of all blacklisted users.
+        ブラックリストに登録されているユーザーのリストを表示します。
 
-        :param context: The hybrid command context.
+        :param context: ハイブリッドコマンドコンテキスト
         """
         blacklisted_users = await self.bot.database.get_blacklisted_users()
         if len(blacklisted_users) == 0:
             embed = discord.Embed(
-                description="There are currently no blacklisted users.", color=0xE02B2B
+                description="現在、ブラックリストに登録されているユーザーはいません。", color=0xE02B2B
             )
             await context.send(embed=embed)
             return
 
-        embed = discord.Embed(title="Blacklisted Users", color=0xBEBEFE)
+        embed = discord.Embed(title="ブラックリスト ユーザリスト", color=0xBEBEFE)
         users = []
         for bluser in blacklisted_users:
             user = self.bot.get_user(int(bluser[0])) or await self.bot.fetch_user(
                 int(bluser[0])
             )
-            users.append(f"• {user.mention} ({user}) - Blacklisted <t:{bluser[1]}>")
+            users.append(f"• {user.mention} ({user}) - ブラックリスト入り <t:{bluser[1]}>")
         embed.description = "\n".join(users)
         await context.send(embed=embed)
 
     @blacklist.command(
         base="blacklist",
         name="add",
-        description="Lets you add a user from not being able to use the bot.",
+        description="ボットを使用できないユーザーを追加します",
     )
-    @app_commands.describe(user="The user that should be added to the blacklist")
+    @app_commands.describe(user="ブラックリストに追加するユーザー")
     @commands.is_owner()
     async def blacklist_add(self, context: Context, user: discord.User) -> None:
         """
-        Lets you add a user from not being able to use the bot.
+        ボットを使用できないユーザーを追加する
 
-        :param context: The hybrid command context.
-        :param user: The user that should be added to the blacklist.
+        :param context: ハイブリッドコマンドコンテキスト
+        :param user: ブラックリストに追加するユーザー
         """
         user_id = user.id
         if await self.bot.database.is_blacklisted(user_id):
             embed = discord.Embed(
-                description=f"**{user.name}** is already in the blacklist.",
+                description=f"**{user.name}** は既にブラックリストに追加されています",
                 color=0xE02B2B,
             )
             await context.send(embed=embed)
             return
         total = await self.bot.database.add_user_to_blacklist(user_id)
         embed = discord.Embed(
-            description=f"**{user.name}** has been successfully added to the blacklist",
+            description=f"**{user.name}** はブラックリストに正常に追加されました",
             color=0xBEBEFE,
         )
         embed.set_footer(
-            text=f"There {'is' if total == 1 else 'are'} now {total} {'user' if total == 1 else 'users'} in the blacklist"
+            text=f"ブラックリストには、合計{total}人が登録されています。"
         )
         await context.send(embed=embed)
 
     @blacklist.command(
         base="blacklist",
         name="remove",
-        description="Lets you remove a user from not being able to use the bot.",
+        description="Botを使用できないユーザーから外す",
     )
-    @app_commands.describe(user="The user that should be removed from the blacklist.")
+    @app_commands.describe(user="ブラックリストから削除するユーザ")
     @commands.is_owner()
     async def blacklist_remove(self, context: Context, user: discord.User) -> None:
         """
-        Lets you remove a user from not being able to use the bot.
+        Botを使用できないユーザーから外す
 
-        :param context: The hybrid command context.
-        :param user: The user that should be removed from the blacklist.
+        :param context: ハイブリッドコマンドコンテキスト
+        :param user: ブラックリストから削除するユーザ
         """
         user_id = user.id
         if not await self.bot.database.is_blacklisted(user_id):
             embed = discord.Embed(
-                description=f"**{user.name}** is not in the blacklist.", color=0xE02B2B
+                description=f"**{user.name}** はブラックリストに入っていません", color=0xE02B2B
             )
             await context.send(embed=embed)
             return
         total = await self.bot.database.remove_user_from_blacklist(user_id)
         embed = discord.Embed(
-            description=f"**{user.name}** has been successfully removed from the blacklist",
+            description=f"**{user.name}** はブラックリストから正常に削除されました。",
             color=0xBEBEFE,
         )
         embed.set_footer(
-            text=f"There {'is' if total == 1 else 'are'} now {total} {'user' if total == 1 else 'users'} in the blacklist"
+            text=f"ブラックリストには、合計{total}人が登録されています。"
         )
         await context.send(embed=embed)
 
