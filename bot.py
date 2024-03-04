@@ -115,8 +115,8 @@ console_handler.setFormatter(LoggingFormatter())
 # File handler
 os.makedirs('./log/', exist_ok=True)
 # file_handler = logging.FileHandler(filename="./log/discord.log", encoding="utf-8", mode="w")
-MAX_LOG_FILE_SIZE = os.getenv("MAX_LOG_SIZE_MB",10)*1024*1000
-MAX_LOG_BACKUP_COUNT = os.getenv("MAX_LOG_BACKUP_COUNT",10)
+MAX_LOG_FILE_SIZE = config["log"]["max_size_mb"]*1024*1000
+MAX_LOG_BACKUP_COUNT = config["log"]["max_backup_count"]
 file_handler = logging.handlers.RotatingFileHandler('./log/discord.log',mode="a+",encoding="utf-8",
                                                     maxBytes=MAX_LOG_FILE_SIZE,backupCount=MAX_LOG_BACKUP_COUNT)
 file_handler_formatter = logging.Formatter(
@@ -301,4 +301,4 @@ class DiscordBot(commands.Bot):
 load_dotenv()
 
 bot = DiscordBot()
-bot.run(os.getenv("TOKEN"))
+bot.run(os.getenv("TOKEN",""))
