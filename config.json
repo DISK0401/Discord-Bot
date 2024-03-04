@@ -9,9 +9,8 @@
   },
   "factorio":{
     "use":true,
-    "rcon_ip":"localhost",
+    "rcon_ip":"192.168.1.18",
     "rcon_port":34197,
-    "notice_guild":"",
-    "notice_channel":""
+    "notice_channel":1214218463795748906
   }
 }

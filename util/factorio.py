@@ -74,8 +74,10 @@ def online_player_list(client:factorio_rcon.RCONClient) -> list:
     if player_count>=1:
         for i,text in enumerate(response.splitlines()):
             if i==0:
+                # 「オンラインのプレイヤー (x):」の行は不要なのでスキップ
                 continue
-            player_list.append(text.strip())
+            # ユーザ名の後ろに「 (onilne)」がつくため、取り除いて設定
+            player_list.append(text.strip().split()[0])
     return player_list
 
 def evolution(client:factorio_rcon.RCONClient) -> str:
