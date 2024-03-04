@@ -8,7 +8,7 @@ lastExecUserTime = {}
 
 omikuji_jp = {
     "GREAT_BLESSING": '大吉',
-    "GOOD_BLESSING": '中吉',
+    "GOOD_BLESSING": '吉',
     "MIDDLE_BLESSING": '中吉',
     "SMALL_BLESSING": '小吉',
     "UNCERTAIN_LUCK": '末吉',
@@ -22,7 +22,7 @@ def trans_jp(Omikuji):
 
 class Omikuji(Enum):
     GREAT_BLESSING = 0   # 大吉
-    GOOD_BLESSING = 1    # 中吉
+    GOOD_BLESSING = 1    # 吉
     MIDDLE_BLESSING = 2  # 中吉
     SMALL_BLESSING = 3   # 小吉
     UNCERTAIN_LUCK =4    # 末吉
