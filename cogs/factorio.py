@@ -31,37 +31,54 @@ class Factorio(commands.Cog, name="factorio"):
     @tasks.loop(seconds=5)
     async def check_online_user(self):
         self.bot.logger.debug("[factorio] check_online_user実行開始")
+        now:datetime = datetime.now(JST)
         online_user_list:list = factorio.online_player_list(self.rcon_client)
         if online_user_list:
             for user_name in online_user_list:
-                if user_name in self.notice_done_user_dict:
+                if self.notice_done_user_dict.get(user_name,False):
                     # 通知済みリストにいる = 既知のログイン
                     self.bot.logger.debug("[factorio] 「" + user_name + "さん」はログイン通知済み")
                     continue
                 else:
                     # 通知済みリストにいない = 新規ログイン
                     self.notice_done_user_dict[user_name] = datetime.now(JST)
-                    message = "「" + user_name+"さん」がログインしました。"
-                    self.bot.logger.info("[factorio] " + message)
-                    await self.channel.send(message)
+                    embed = discord.Embed(
+                        title='勤怠通知',
+                        description=f"「{user_name}」さんが出勤しました。", color=0xBEBEFE
+                    )
+                    # embed.add_field(
+                    #     name="出勤時間:",
+                    #     value=f"{str(now)}",
+                    #     inline=True,
+                    # )
+                    self.bot.logger.info("[factorio] " + user_name + "さんがログインしました。")
+                    await self.channel.send(embed=embed)
                     continue
         if len(self.notice_done_user_dict):
             # 通知済みリストにいるのに、オンラインユーザにいない = 新規ログアウト
             diff_list = list(set(list(self.notice_done_user_dict.keys())) - set(online_user_list))
-            now = datetime.now(JST)
             if diff_list:
                 for user_name in diff_list:
-                    login_time = self.notice_done_user_dict.get('user_name',datetime.now(JST))
-                    self.notice_done_user_dict = self.notice_done_user_dict.pop(user_name)
-                    message += "「"+user_name+"さん」"
+                    login_time:datetime = self.notice_done_user_dict.get(user_name)
+                    del self.notice_done_user_dict[user_name]
                     embed = discord.Embed(
-                        title='ログアウト通知',
-                        description=f"{user_name}さんがログアウトしました。", color=0xBEBEFE
+                        title='勤怠通知',
+                        description=f"「{user_name}」さんが退勤しました。", color=0xBEBEFE
                     )
+                    # embed.add_field(
+                    #     name="出勤時間:",
+                    #     value=f"{str(login_time)}",
+                    #     inline=False,
+                    # )
+                    # embed.add_field(
+                    #     name="退勤時間:",
+                    #     value=f"{str(now)}",
+                    #     inline=False,
+                    # )
                     embed.add_field(
                         name="今回のプレイ時間:",
-                        value=f"{format_timedelta(login_time - now)}",
-                        inline=True,
+                        value=f"{format_timedelta(now - login_time)}",
+                        inline=False,
                     )
                     self.bot.logger.info("[factorio] " + user_name + "さんがログアウトしました。")
                     await self.channel.send(embed=embed)
@@ -80,7 +97,7 @@ class Factorio(commands.Cog, name="factorio"):
             for user_name in online_user_list:
                 self.notice_done_user_dict[user_name] = datetime.now(JST)
                 message += "「"+user_name+"さん」"
-            message += "がログイン中です。"
+            message += "は既に勤務中です。"
             self.bot.logger.info("[factorio] " + message)
             await self.channel.send(message)
 
@@ -163,10 +180,8 @@ class Factorio(commands.Cog, name="factorio"):
 
         # 起動中
         embed = discord.Embed(
-            description=f"Factorioが起動中です", color=0xBEBEFE
+            title=f"Factorioサーバ情報", color=0xBEBEFE
         )
-        embed.set_author(name="Factorioサーバ情報")
-
         ## サーバシード値
         embed.add_field(
             name="シード値:",
@@ -187,6 +202,7 @@ class Factorio(commands.Cog, name="factorio"):
         )
         ## オンラインプレイヤー情報
         online_player_list = factorio.online_player_list(self.rcon_client)
+        self.bot.logger.debug("[factorio] online_player_list:" + str(online_player_list))
         embed.add_field(
             name="現在オンラインユーザ数:",
             value=f"{len(online_player_list)} 人",
@@ -195,10 +211,10 @@ class Factorio(commands.Cog, name="factorio"):
         if show_players:
             online_player_name = ""
             if online_player_list:
-                for index, player_name in enumerate(online_player_list):
+                for index, user_name in enumerate(online_player_list):
                     if index >=1 :
                         online_player_name += ", "
-                    online_player_name += player_name
+                    online_player_name += user_name
             embed.add_field(
                 name="現在オンラインのユーザ:",
                 value=f"{online_player_name}",
@@ -206,6 +222,7 @@ class Factorio(commands.Cog, name="factorio"):
             )
         ## 参加ユーザ情報
         player_list = factorio.player_list(self.rcon_client)
+        self.bot.logger.debug("[factorio] player_list:" + str(player_list))
         embed.add_field(
             name="参加ユーザ数:",
             value=f"{len(player_list)} 人",
@@ -214,10 +231,10 @@ class Factorio(commands.Cog, name="factorio"):
         if show_players:
             player_name = ""
             if player_list:
-                for index, player_name in enumerate(player_list):
+                for index, user_name in enumerate(player_list):
                     if index >=1 :
                         player_name += ", "
-                    player_name += player_name
+                    player_name += user_name
             embed.add_field(
                 name="参加ユーザ:",
                 value=f"{player_name}",
