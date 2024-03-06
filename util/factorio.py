@@ -1,6 +1,13 @@
 import factorio_rcon
+import os
 import re
 
+def create_client(bot) -> factorio_rcon.RCONClient:
+    IP = bot.config["factorio"]["rcon_ip"]
+    PORT = bot.config["factorio"]["rcon_port"]
+    PASSWORD = os.getenv("FACTORIO_RCON_PASSWORD","")
+    client = factorio_rcon.RCONClient(IP, PORT, PASSWORD)
+    return client
 
 def version(client:factorio_rcon.RCONClient) -> str:
     """
@@ -48,8 +55,9 @@ def player_list(client:factorio_rcon.RCONClient) -> list:
     if player_count>=1:
         for i,text in enumerate(response.splitlines()):
             if i==0:
+                # 「プレイヤー (x):」の行は不要なのでスキップ
                 continue
-            player_list.append(text.strip())
+            player_list.append(text.strip().split()[0])
     return player_list
 
 
