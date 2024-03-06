@@ -5,11 +5,15 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import Context
 import util.factorio as factorio
+from util.util import format_timedelta
+
+from datetime import datetime, timedelta, timezone
+JST = timezone(timedelta(hours=+9), 'JST')
 
 class Factorio(commands.Cog, name="factorio"):
     def __init__(self, bot) -> None:
         self.bot = bot
-        self.notice_done_user_list = []
+        self.notice_done_user_dict:dict = {}
         USE = bot.config["factorio"]["use"]
         self.use_factorio_notice = USE
         if USE:
@@ -30,28 +34,37 @@ class Factorio(commands.Cog, name="factorio"):
         online_user_list:list = factorio.online_player_list(self.rcon_client)
         if online_user_list:
             for user_name in online_user_list:
-                if user_name in self.notice_done_user_list:
+                if user_name in self.notice_done_user_dict:
                     # 通知済みリストにいる = 既知のログイン
                     self.bot.logger.debug("[factorio] 「" + user_name + "さん」はログイン通知済み")
                     continue
                 else:
                     # 通知済みリストにいない = 新規ログイン
-                    self.notice_done_user_list.append(user_name)
+                    self.notice_done_user_dict[user_name] = datetime.now(JST)
                     message = "「" + user_name+"さん」がログインしました。"
                     self.bot.logger.info("[factorio] " + message)
                     await self.channel.send(message)
                     continue
-        if self.notice_done_user_list:
+        if len(self.notice_done_user_dict):
             # 通知済みリストにいるのに、オンラインユーザにいない = 新規ログアウト
-            diff_list = list(set(self.notice_done_user_list) - set(online_user_list))
+            diff_list = list(set(list(self.notice_done_user_dict.keys())) - set(online_user_list))
+            now = datetime.now(JST)
             if diff_list:
-                message = ""
                 for user_name in diff_list:
-                    self.notice_done_user_list.remove(user_name)
+                    login_time = self.notice_done_user_dict.get('user_name',datetime.now(JST))
+                    self.notice_done_user_dict = self.notice_done_user_dict.pop(user_name)
                     message += "「"+user_name+"さん」"
-                message += "がログアウトしました。"
-                self.bot.logger.info("[factorio] " + message)
-                await self.channel.send(message)
+                    embed = discord.Embed(
+                        title='ログアウト通知',
+                        description=f"{user_name}さんがログアウトしました。", color=0xBEBEFE
+                    )
+                    embed.add_field(
+                        name="今回のプレイ時間:",
+                        value=f"{format_timedelta(login_time - now)}",
+                        inline=True,
+                    )
+                    self.bot.logger.info("[factorio] " + user_name + "さんがログアウトしました。")
+                    await self.channel.send(embed=embed)
         self.bot.logger.debug("[factorio] check_online_user実行終了")
 
 
@@ -65,7 +78,7 @@ class Factorio(commands.Cog, name="factorio"):
         if online_user_list:
             message = ""
             for user_name in online_user_list:
-                self.notice_done_user_list.append(user_name)
+                self.notice_done_user_dict[user_name] = datetime.now(JST)
                 message += "「"+user_name+"さん」"
             message += "がログイン中です。"
             self.bot.logger.info("[factorio] " + message)
@@ -92,7 +105,7 @@ class Factorio(commands.Cog, name="factorio"):
 
         # 停止させる
         self.use_factorio_notice = False
-        self.notice_done_user_list = []
+        self.notice_done_user_dict.clear()
         self.check_online_user.cancel()
         embed = discord.Embed(
             description=f"Factorio入退室通知機能を停止しました。", color=0xBEBEFE
