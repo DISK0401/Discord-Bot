@@ -1,6 +1,13 @@
 import factorio_rcon
+import os
 import re
 
+def create_client(bot) -> factorio_rcon.RCONClient:
+    IP = bot.config["factorio"]["rcon_ip"]
+    PORT = bot.config["factorio"]["rcon_port"]
+    PASSWORD = os.getenv("FACTORIO_RCON_PASSWORD","")
+    client = factorio_rcon.RCONClient(IP, PORT, PASSWORD)
+    return client
 
 def version(client:factorio_rcon.RCONClient) -> str:
     """
