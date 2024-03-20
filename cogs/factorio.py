@@ -121,9 +121,9 @@ class Factorio(commands.Cog, name="factorio"):
             return
 
         # 停止させる
-        self.use_factorio_notice = False
         self.notice_done_user_dict.clear()
         self.check_online_user.cancel()
+        self.use_factorio_notice = False
         embed = discord.Embed(
             description=f"Factorio入退室通知機能を停止しました。", color=0xBEBEFE
         )
@@ -153,6 +153,7 @@ class Factorio(commands.Cog, name="factorio"):
         self.bot.logger.info("[factorio] version:" + factorio.version(client))
         self.rcon_client = client
         self.check_online_user.start()
+        self.use_factorio_notice = True
         embed = discord.Embed(
             description=f"Factorio入退室通知機能を起動しました。", color=0xBEBEFE
         )
