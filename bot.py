@@ -221,7 +221,20 @@ class DiscordBot(commands.Bot):
                 f"{os.path.realpath(os.path.dirname(__file__))}/database/database.db"
             )
         )
+        await self.sync_app_commands()
         self.logger.info("-------------------")
+
+    async def sync_app_commands(self) -> None:
+        """
+        スラッシュコマンドを Discord に登録する（グローバル）。
+        コマンドを追加・削除した版をデプロイしても、手で sync を打たずに反映されるようにする。
+        失敗しても Bot 自体は動かし続ける（手動の sync コマンドで登録し直せる）。
+        """
+        try:
+            synced = await self.tree.sync()
+            self.logger.info(f"Synced {len(synced)} application commands (global)")
+        except Exception as e:
+            self.logger.warning(f"スラッシュコマンドの同期に失敗しました: {type(e).__name__}: {e}")
 
     async def on_message(self, message: discord.Message) -> None:
         """
